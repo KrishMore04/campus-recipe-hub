@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Recipe Hub</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        header {
+            background: #ff6b35;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 16px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            padding: 13px 22px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            cursor: pointer;
+        }
+
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .add-button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .recipes-header {
+            margin-bottom: 15px;
+        }
+
+        .recipes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .recipe-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .recipe-card h3 {
+            color: #ff6b35;
+            margin-bottom: 8px;
+        }
+
+        .category {
+            display: inline-block;
+            background: #ffe4d9;
+            color: #d94d1f;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .recipe-card p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        footer {
+            margin-top: 40px;
+            background: #222;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .search-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🍳 Campus Recipe Hub</h1>
+        <p>Discover, share and explore delicious recipes</p>
+    </header>
+
+    <main class="container">
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search recipes...">
+            <button onclick="searchRecipes()">Search</button>
+        </div>
+
+        <section class="form-section">
+            <h2>➕ Add a New Recipe</h2>
+
+            <form id="recipeForm">
+
+                <div class="form-group">
+                    <label for="name">Recipe Name</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select category</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Dessert">Dessert</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ingredients">Ingredients</label>
+                    <textarea id="ingredients" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="instructions">Preparation Instructions</label>
+                    <textarea id="instructions" required></textarea>
+                </div>
+
+                <button type="submit" class="add-button">
+                    Add Recipe
+                </button>
+
+            </form>
+        </section>
+
+        <section>
+            <div class="recipes-header">
+                <h2>🍽️ Available Recipes</h2>
+            </div>
+
+            <div class="recipes" id="recipesContainer">
+                <p>Loading recipes...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Campus Recipe Hub | Cloud Computing & DevOps Project</p>
+        <p>Running Commit: <span id="commitId">Loading...</span></p>
+    </footer>
+
+    <script>
+        async function loadRecipes() {
+            const response = await fetch("/api/recipes");
+            const recipes = await response.json();
+
+            displayRecipes(recipes);
+        }
+
+        function displayRecipes(recipes) {
+            const container = document.getElementById("recipesContainer");
+
+            if (recipes.length === 0) {
+                container.innerHTML = "<p>No recipes found.</p>";
+                return;
+            }
+
+            container.innerHTML = recipes.map(recipe => `
+                <div class="recipe-card">
+                    <h3>${recipe.name}</h3>
+                    <span class="category">${recipe.category}</span>
+                    <p><strong>Ingredients:</strong><br>${recipe.ingredients}</p>
+                    <p><strong>Instructions:</strong><br>${recipe.instructions}</p>
+                </div>
+            `).join("");
+        }
+
+        async function searchRecipes() {
+            const search = document.getElementById("searchInput").value;
+
+            const response = await fetch(
+                "/api/recipes?search=" + encodeURIComponent(search)
+            );
+
+            const recipes = await response.json();
+
+            displayRecipes(recipes);
+        }
+
+        document.getElementById("recipeForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const recipe = {
+                name: document.getElementById("name").value,
+                category: document.getElementById("category").value,
+                ingredients: document.getElementById("ingredients").value,
+                instructions: document.getElementById("instructions").value
+            };
+
+            const response = await fetch("/api/recipes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(recipe)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("Recipe added successfully!");
+                document.getElementById("recipeForm").reset();
+                loadRecipes();
+            } else {
+                alert(result.error);
+            }
+        });
+
+        async function loadCommitId() {
+            try {
+                const response = await fetch("/api/commit");
+                const data = await response.json();
+                document.getElementById("commitId").textContent = data.commit;
+            } catch {
+                document.getElementById("commitId").textContent = "Local Development";
+            }
+        }
+
+        loadRecipes();
+        loadCommitId();
+    </script>
+
+</body>
+</html>
