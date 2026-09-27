@@ -242,22 +242,24 @@
         }
 
         function displayRecipes(recipes) {
-            const container = document.getElementById("recipesContainer");
+    const container = document.getElementById("recipesContainer");
 
-            if (recipes.length === 0) {
-                container.innerHTML = "<p>No recipes found.</p>";
-                return;
-            }
+    if (recipes.length === 0) {
+        container.innerHTML = "<p>No recipes found.</p>";
+        return;
+    }
 
-            container.innerHTML = recipes.map(recipe => `
-                <div class="recipe-card">
-                    <h3>${recipe.name}</h3>
-                    <span class="category">${recipe.category}</span>
-                    <p><strong>Ingredients:</strong><br>${recipe.ingredients}</p>
-                    <p><strong>Instructions:</strong><br>${recipe.instructions}</p>
-                </div>
-            `).join("");
-        }
+    container.innerHTML = recipes.map(recipe => `
+        <div class="recipe-card">
+            <h3>${recipe.name}</h3>
+            <span class="category">${recipe.category}</span>
+            <p><strong>Ingredients:</strong><br>${recipe.ingredients}</p>
+            <p><strong>Instructions:</strong><br>${recipe.instructions}</p>
+        </div>
+    `).join("");
+}
+
+            
 
         async function searchRecipes() {
             const search = document.getElementById("searchInput").value;
