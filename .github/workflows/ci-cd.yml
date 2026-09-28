@@ -54,3 +54,15 @@ jobs:
 
       - name: Stop Docker container
         run: docker stop campus-recipe-container
+
+          deploy:
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Render
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          curl --fail --get "$RENDER_DEPLOY_HOOK" --data-urlencode "ref=${GITHUB_SHA}"
