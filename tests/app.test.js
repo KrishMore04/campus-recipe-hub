@@ -67,6 +67,6 @@ test("invalid recipe is rejected", async () => {
 
     const data = await response.json();
 
-    assert.strictEqual(response.status, 400);
+    assert.strictEqual(response.status,400);
     assert.strictEqual(data.error, "All fields are required.");
 });
