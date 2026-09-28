@@ -1,0 +1,56 @@
+name: Campus Recipe Hub CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t campus-recipe-hub .
+
+      - name: Run Docker container
+        run: docker run -d --name campus-recipe-container -p 3000:3000 campus-recipe-hub
+
+      - name: Wait for application
+        run: sleep 5
+
+      - name: Health check
+        run: curl --fail http://localhost:3000/health
+
+      - name: Stop Docker container
+        run: docker stop campus-recipe-container
