@@ -81,6 +81,10 @@ app.get("/api/commit", (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Campus Recipe Hub running on port ${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Campus Recipe Hub running on port ${PORT}`);
+    });
+}
+
+module.exports = app;
